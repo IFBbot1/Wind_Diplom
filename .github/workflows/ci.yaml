@@ -1,0 +1,30 @@
+name: pyHWM14 Repository CI Workflow
+
+on:
+  push:
+    branches: [ main ]
+    tags:
+      - v*.*.*
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-20.04
+    strategy:
+      matrix:
+        python_version: ["3.10"]
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Python ${{ matrix.python_version }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python_version }}
+    - name: Install dependencies
+      run: |
+        python -m venv .venv
+        .venv/bin/pip install coveralls numpy
+        .venv/bin/pip install -e .
+    - name: Run code test in Python programs
+      run: |
+        .venv/bin/coverage run --source=. --module unittest discover --start-directory tests --verbose
